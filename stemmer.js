@@ -104,12 +104,11 @@ var stemmer = (function(){
 		}
 
 		// Step 1c
-		re = /^(.+?)y$/;
-		if (re.test(w)) {
+	        re = new RegExp("^(.+" + c + ")y$");
+		    if (re.test(w) && w != "sky") {
 			var fp = re.exec(w);
 			stem = fp[1];
-			re = new RegExp(s_v);
-			if (re.test(stem)) { w = stem + "i"; }
+		    w = stem + "i";
 		}
 
 		// Step 2
