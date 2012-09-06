@@ -196,7 +196,7 @@ var stemmer = (function(){
 	    	"singly": "singl"
 	    };
 
-	    if(specialWords[origword]){
+	    if(specialWords.hasOwnProperty(origword)){
 	    	w = specialWords[origword];
 	    }
 
