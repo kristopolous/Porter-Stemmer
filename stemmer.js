@@ -194,9 +194,9 @@ var stemmer = (function(){
 	    	"early": "earli",
 	    	"only": "onli",
 	    	"singly": "singl"
-	    };
+	    }, emptyObject = {};
 
-	    if(specialWords[origword]){
+	    if(specialWords[origword] !== emptyObject[origword]){
 	    	w = specialWords[origword];
 	    }
 
