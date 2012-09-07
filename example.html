@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+<head>
+<title>Porter Stemmer Online</title>
+<style>
+  textarea,#overlap,#overlay,#stemmed{width:600px;height:300px;overflow-y:scroll;font-family:monospace}
+#overlap em {font-style:normal;display:inline-block;background:#8f8}
+h1{margin:0;font-size:1.5em;margin-top:15px}
+#overlap,#overlay,#stemmed{background:#efe;padding:5px;text-align:left}
+</style>	
+</head>
+<body>
+<center>
+<h1>Javascript Porter Stemmer Online</h1>
+<small><a href=https://github.com/kristopolous/Porter-Stemmer>View the source</a> (<a href=PorterStemmer1980.min.js>minified</a>)</small>
+<blockquote>
+Find out more about the Porter Stemming algorithm at the <a href=http://tartarus.org/~martin/PorterStemmer/>official site</a>.</blockquote>
+<textarea id=test cols=70 rows=15>
+Example:
+
+Do you really think it is weakness that yields to temptation? I tell you that there are terrible temptations which it requires strength, strength and courage to yield to ~ Oscar Wilde
+</textarea>
+<br>
+<button onclick=stem()>Stem the above content</button>
+
+<h1>Overlay</h1>
+<div id=overlap>Overlayed Output Goes Here!</div>
+
+<h1>Stemmed</h1>
+<div id=stemmed>Stemmed Output Alone Goes Here!</div>
+
+<div style=background:#fff;width:600px;text-align:left>
+<h3>Common topics taught for <a href=http://en.wikipedia.org/wiki/Document_classification>Document Classification</a> include</h3>
+<ul>
+  <li><a href=http://en.wikipedia.org/wiki/Stop_words>Stop words</a>
+  <li><a href=http://en.wikipedia.org/wiki/Tf*idf>Inverse document frequency</a>
+</ul>
+<H4>Free software relating to this field:</h4>
+<ul>
+  <li><a href=http://lucene.apache.org/core/>Lucene</a>
+  <li><a href=http://search.carrot2.org/stable/search>Carrot2</a>
+</ul>
+</div>
+
+<br>
+<span style=text-align:left;display:inline-block>
+History:<ul>
+  <li>August 24, 2009: Initial release
+	<li>January 7, 2010: Demo page made
+	<li>November 18, 2010: Added minified version and formatted viewing link
+  <li>June 15, 2011: Moved source to github
+  <li>Sep 7, 2012: Substantial revisions and test cases
+</ul>
+</span>
+</center>
+<script src=PorterStemmer1980.js></script>
+<script>
+function stem(){
+	var 	wordlist,
+		ix,
+		word,
+		stem,
+		overlap = [],
+		stemmed = [],
+		test = document.getElementById('test').value;
+
+	// dump non-words
+	test = test.replace(/[^\w]/g, ' ');
+
+	// dump multiple white-space
+	test = test.replace(/\s+/g, ' ');
+
+	// split
+	wordlist = test.split(' ');
+
+	for(ix in wordlist) {
+		stem = stemmer(wordlist[ix]);
+		overlap.push(wordlist[ix].replace(stem, stem + '<em>') + '</em>');
+		stemmed.push(stem);
+	}
+	document.getElementById('overlap').innerHTML = overlap.join(' ');
+	document.getElementById('stemmed').innerHTML = stemmed.join(' ');
+}
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-8759665-4']);
+_gaq.push(['_trackPageview']);
+(function() {
+var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+</body>
+<center style=font-size:0.8em>Demo site and reference JS implementation maintained by <a href=http://qaa.ath.cx>Chris McKenzie</a>.</center>
+</html>
