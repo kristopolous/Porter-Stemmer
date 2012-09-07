@@ -1,0 +1,85 @@
+<!doctype.html>
+<html>
+  <head>
+    <title>
+      Porter Stemmer 1980 Javascript validation suite
+    </title>
+  </head>
+  <body>
+    <h1>Porter Stemmer 1980 Javascript validation suite</h1>
+
+    <div id="status">
+    </div>
+
+    <div id="output">
+    </div>
+  </body>
+</html>
+<script type="text/javascript" src="../PorterStemmer1980.js"></script>
+<script type="text/javascript" src="ReferenceTable.js"></script>
+<script>
+
+window.onload = function() {
+  var 
+    $status = document.getElementById("status"),
+    $output = document.getElementById("output"),
+
+    input,
+    failureList = [],
+    reference,
+    output;
+
+  for(var i = 0; i < testWords.length; i++) {
+    if (i % 100 == 99) {
+      $status.innerHTML = "Running. Passed " + (i - failureList.length) + "/" + i + " out of " + testWords.length + " tests.";
+    }
+
+    input = testWords[i][0];
+    reference = testWords[i][1];
+
+    output = stemmer (input);
+
+    if (output != reference) {
+      failureList.push ({
+        input: input,
+        output: output,
+        reference: reference
+      });
+    }
+  }
+
+  $status.innerHTML = "Completed. Passed " + 
+    (i - failureList.length) + "/" + i + 
+    " out of " + testWords.length + " tests. (" +
+    (100 * (1 - failureList.length / i)).toFixed(2) + "%)";
+
+  if (failureList.length > 0) {
+    var thead = 
+      "<thead>" +
+        "<tr>" +
+          "<th>input</th>" +
+          "<th>output</th>" +
+          "<th>reference</th>" +
+        "</tr>" +
+      "</thead>",
+      tbody = [],
+      failure;
+
+    for (i = 0; i < failureList.length; i++) {
+      failure = failureList[i];
+
+      tbody.push(  
+        "<td>" + failure.input + "</td>" +
+        "<td>" + failure.output + "</td>" +
+        "<td>" + failure.reference + "</td>"
+      );
+    }
+        
+    $output.innerHTML = "<table>" + thead + 
+      "<tbody>" +
+        "<tr>" + tbody.join("</tr><tr>") + "</tr>" +
+      "</tbody>" +
+    "</table>";
+  }
+}
+</script>
