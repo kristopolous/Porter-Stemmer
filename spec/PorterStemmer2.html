@@ -1,0 +1,961 @@
+
+<HTML>
+<HEAD>
+
+<TITLE>The English (Porter2) stemming algorithm</TITLE></HEAD>
+<BODY BGCOLOR=WHITE>
+<TABLE WIDTH=75% ALIGN=CENTER COLS=1>
+<H1 ALIGN=CENTER>The English (Porter2) stemming algorithm</H1>
+
+<TR><TD>
+<BR>&nbsp;<H2>Links to resources</H2>
+
+<DL><DD><TABLE CELLPADDING=0>
+<TR><TD><A HREF="../.."> Snowball main page</A>
+<TR><TD><A HREF="stem_ISO_8859_1.sbl">    The stemmer in Snowball</A>
+<TR><TD><A HREF="stem.c">      The ANSI C stemmer</A>
+<TR><TD><A HREF="stem.h">      &#x2014; and its header</A>
+<TR><TD><A HREF="voc.txt">     Sample English vocabulary</A>
+<TR><TD><A HREF="output.txt">  Its stemmed equivalent</A>
+<TR><TD><A HREF="diffs.txt">   Vocabulary + stemmed equivalent</A>
+<TR><TD><A HREF="tarball.tgz"> Tar-gzipped file of all of the above</A>
+<BR><BR>
+<TR><TD><A HREF="stop.txt">    A stop word list</A>
+</TABLE></DL>
+
+<BR><BR>
+
+
+
+<TR><TD BGCOLOR="lightpink">
+
+<BR><BR>
+
+Here is a sample of vocabulary, with the stemmed forms that will
+be generated with the algorithm.
+
+<BR><BR>
+
+
+
+<DL><DD><TABLE CELLPADDING=0>
+<TR><TD>  <B>word</B> </TD>
+ <TD></TD><TD> </TD>
+ <TD></TD><TD> <B>stem</B> </TD>
+ <TD></TD><TD>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+ <TD></TD><TD> <B>word</B> </TD>
+ <TD></TD><TD> </TD>
+ <TD></TD><TD> <B>stem</B> </TD>
+</TR>
+
+<TR><TD>
+consign<BR>
+consigned<BR>
+consigning<BR>
+consignment<BR>
+consist<BR>
+consisted<BR>
+consistency<BR>
+consistent<BR>
+consistently<BR>
+consisting<BR>
+consists<BR>
+consolation<BR>
+consolations<BR>
+consolatory<BR>
+console<BR>
+consoled<BR>
+consoles<BR>
+consolidate<BR>
+consolidated<BR>
+consolidating<BR>
+consoling<BR>
+consolingly<BR>
+consols<BR>
+consonant<BR>
+consort<BR>
+consorted<BR>
+consorting<BR>
+conspicuous<BR>
+conspicuously<BR>
+conspiracy<BR>
+conspirator<BR>
+conspirators<BR>
+conspire<BR>
+conspired<BR>
+conspiring<BR>
+constable<BR>
+constables<BR>
+constance<BR>
+constancy<BR>
+constant<BR>
+</TD>
+<TD></TD><TD> &nbsp;<TT><B> => </B></TT>&nbsp; </TD>
+<TD></TD><TD>
+consign<BR>
+consign<BR>
+consign<BR>
+consign<BR>
+consist<BR>
+consist<BR>
+consist<BR>
+consist<BR>
+consist<BR>
+consist<BR>
+consist<BR>
+consol<BR>
+consol<BR>
+consolatori<BR>
+consol<BR>
+consol<BR>
+consol<BR>
+consolid<BR>
+consolid<BR>
+consolid<BR>
+consol<BR>
+consol<BR>
+consol<BR>
+conson<BR>
+consort<BR>
+consort<BR>
+consort<BR>
+conspicu<BR>
+conspicu<BR>
+conspiraci<BR>
+conspir<BR>
+conspir<BR>
+conspir<BR>
+conspir<BR>
+conspir<BR>
+constabl<BR>
+constabl<BR>
+constanc<BR>
+constanc<BR>
+constant<BR>
+</TD>
+<TD></TD><TD> </TD>
+<TD></TD><TD>
+knack<BR>
+knackeries<BR>
+knacks<BR>
+knag<BR>
+knave<BR>
+knaves<BR>
+knavish<BR>
+kneaded<BR>
+kneading<BR>
+knee<BR>
+kneel<BR>
+kneeled<BR>
+kneeling<BR>
+kneels<BR>
+knees<BR>
+knell<BR>
+knelt<BR>
+knew<BR>
+knick<BR>
+knif<BR>
+knife<BR>
+knight<BR>
+knightly<BR>
+knights<BR>
+knit<BR>
+knits<BR>
+knitted<BR>
+knitting<BR>
+knives<BR>
+knob<BR>
+knobs<BR>
+knock<BR>
+knocked<BR>
+knocker<BR>
+knockers<BR>
+knocking<BR>
+knocks<BR>
+knopp<BR>
+knot<BR>
+knots<BR>
+</TD>
+<TD></TD><TD> &nbsp;<TT><B> => </B></TT>&nbsp; </TD>
+<TD></TD><TD>
+knack<BR>
+knackeri<BR>
+knack<BR>
+knag<BR>
+knave<BR>
+knave<BR>
+knavish<BR>
+knead<BR>
+knead<BR>
+knee<BR>
+kneel<BR>
+kneel<BR>
+kneel<BR>
+kneel<BR>
+knee<BR>
+knell<BR>
+knelt<BR>
+knew<BR>
+knick<BR>
+knif<BR>
+knife<BR>
+knight<BR>
+knight<BR>
+knight<BR>
+knit<BR>
+knit<BR>
+knit<BR>
+knit<BR>
+knive<BR>
+knob<BR>
+knob<BR>
+knock<BR>
+knock<BR>
+knocker<BR>
+knocker<BR>
+knock<BR>
+knock<BR>
+knopp<BR>
+knot<BR>
+knot<BR>
+</TD>
+</TR>
+</TABLE></DL>
+
+
+</TR>
+
+<TR><TD>
+
+<BR><BR>
+
+
+
+
+
+
+<BR>&nbsp;<H2>Developing the English stemmer</H2>
+
+(Revised slightly, December 2001)<BR>
+(Further revised, September 2002)
+
+<BR><BR>
+
+I have made more than one attempt to improve the structure of the Porter
+algorithm by making it follow the pattern of ending removal of the Romance
+language stemmers. It is not hard to see why one should want to do this:
+step 1<I>b</I> of the Porter stemmer removes <B><I>ed</I></B> and <B><I>ing</I></B>, which are
+<I>i</I>-suffixes <A HREF="../../texts/glossary.html">(*)</A> attached to verbs. If these suffixes are removed, there
+should be no need to remove <I>d</I>-suffixes which are not verbal, although
+it will try to do so. This seems to be a deficiency in the Porter stemmer,
+not shared by the Romance stemmers. Again, the divisions between steps
+2, 3 and 4 seem rather arbitrary, and are not found in the Romance stemmers.
+<BR><BR>
+Nevertheless, these attempts at improvement have been abandoned. They seem
+to lead to a more complicated algorithm with no very obvious improvements.
+A reason for not taking note of the outcome of step 1<I>b</I> may be that
+English endings do not determine word categories quite as strongly as
+endings in the Romance languages. For example, <I>condition</I> and
+<I>position</I> in French have to be nouns, but in English they can be verbs
+as well as nouns,
+<DL><DD>
+    We are all conditioned by advertising<BR>
+    They are positioning themselves differently today
+</DL>
+A possible reason for having separate steps 2, 3 and 4 is that
+<I>d</I>-suffix combinations in English are quite complex, a point which has
+been made
+<A HREF="../../texts/stemmersoverview.html">elsewhere</A>.
+
+<BR><BR>
+But it is hardly surprising that after twenty years of use of the Porter
+stemmer, certain improvements did suggest themselves, and a new algorithm
+for English is therefore offered here. (It could be called the &#8216;Porter2&#8217;
+stemmer to distinguish it from the Porter stemmer, from which it derives.)
+The changes are not so very extensive: (1) terminating <B><I>y</I></B> is changed to
+<B><I>i</I></B> rather less often, (2) suffix <B><I>us</I></B> does not lose its <B><I>s</I></B>, (3) a
+few additional suffixes are included for removal, including (4) suffix
+<B><I>ly</I></B>. In addition, a small list of exceptional forms is included. In
+December 2001 there were two further adjustments: (5) Steps 5<I>a</I> and 5<I>b</I>
+of the old Porter stemmer were combined into a single step. This means
+that undoubling final <B><I>ll</I></B> is not done with removal of final <B><I>e</I></B>. (6)
+In Step 3 <B><I>ative</I></B> is removed only when in region <I>R</I>2.
+(7)
+In July
+2005 a small adjustment was made (including a new step 0) to handle
+apostrophe.
+
+<BR><BR>
+
+To begin with, here is the basic algorithm without reference to the
+exceptional forms. An exact comparison with the Porter algorithm needs to
+be done quite carefully if done at all. Here we indicate by <TT><FONT COLOR=BLUE>*</FONT></TT> points
+of departure, and by <TT><FONT COLOR=BLUE>+</FONT></TT> additional features. In the sample vocabulary,
+Porter and Porter2 stem slightly under 5% of words to different forms.
+
+<BR>&nbsp;<H2>Definition of the English stemmer</H2>
+
+
+Define a <I>vowel</I> as one of
+<DL><DD>
+    <B><I>a  &nbsp;  e  &nbsp;  i  &nbsp;  o  &nbsp;  u  &nbsp;  y</I></B>
+</DL>
+Define a <I>double</I> as one of
+<DL><DD>
+    <B><I>bb  &nbsp;  dd  &nbsp;  ff  &nbsp;  gg  &nbsp;  mm  &nbsp;  nn  &nbsp;  pp  &nbsp;  rr  &nbsp;  tt</I></B>
+</DL>
+Define a <I>valid <B><I>li</I></B>-ending</I> as one of
+<DL><DD>
+    <B><I>c  &nbsp;  d  &nbsp;  e  &nbsp;  g  &nbsp;  h  &nbsp;  k  &nbsp;  m  &nbsp;  n  &nbsp;  r  &nbsp;  t</I></B>
+</DL>
+
+<I>R</I>1 is the region after the first non-vowel following a vowel, or the end of
+the word if there is no such non-vowel. (This definition may be modified for certain exceptional
+words &#x2014; see below.)
+<BR><BR>
+<I>R</I>2 is the region after the first non-vowel following a vowel in <I>R</I>1, or the
+end of the word if there is no such non-vowel.
+(See <A HREF="../../texts/r1r2.html"> note</A> on <I>R</I>1 and <I>R</I>2.)
+<BR><BR>
+
+Define a <I>short syllable</I> in a word as either (<I>a</I>) a vowel followed by a
+non-vowel other than <B><I>w</I></B>, <B><I>x</I></B> or <B><I>Y</I></B> and preceded by a non-vowel, or
+<TT><FONT COLOR=BLUE>*</FONT></TT>
+(<I>b</I>) a vowel at the beginning of the word followed by a non-vowel.
+
+<BR><BR>
+
+So <I>rap</I>,
+<I>trap</I>, <I>entrap</I> end with a short syllable, and <I>ow</I>, <I>on</I>, <I>at</I> are
+classed as short syllables. But <I>uproot</I>, <I>bestow</I>, <I>disturb</I> do not end with a
+short syllable.
+<BR><BR>
+A word is called <I>short</I> if it ends in a short syllable, and if <I>R</I>1 is null.
+<BR><BR>
+So <I>bed</I>, <I>shed</I> and <I>shred</I> are short words, <I>bead</I>, <I>embed</I>, <I>beds</I> are
+not short words.
+<BR><BR>
+An apostrophe (<B><I>'</I></B>) may be regarded as a letter.
+(See <A HREF="../../texts/apostrophe.html"> note</A> on apostrophes in English.)
+<BR><BR>
+If the word has two letters or less, leave it as it is.
+<BR><BR>
+Otherwise, do each of the following operations,
+<BR><BR>
+Remove initial <B><I>'</I></B>, if present. <TT><FONT COLOR=BLUE>+</FONT></TT> Then,
+<BR><BR>
+Set initial <B><I>y</I></B>, or <B><I>y</I></B> after a vowel, to <B><I>Y</I></B>, and then establish the regions
+<I>R</I>1 and <I>R</I>2.
+(See <A HREF="../../texts/vowelmarking.html"> note</A> on vowel marking.)
+<BR><BR>
+
+Step 0: <TT><FONT COLOR=BLUE>+</FONT></TT>
+<DL><DD>
+    Search for the longest among the suffixes,
+<BR><BR><DL>
+    <DT><B><I>'</I></B>
+    <DT><B><I>'s</I></B>
+    <DT><B><I>'s'</I></B>
+        <DD>and remove if found.
+</DL>
+</DL>
+Step 1<I>a</I>:
+<DL><DD>
+    Search for the longest among the following suffixes, and perform the
+    action indicated.
+
+<BR><BR><DL>
+    <DT><B><I>sses</I></B>
+        <DD>replace by <B><I>ss</I></B>
+<BR><BR>
+    <DT><B><I>ied</I></B><TT><FONT COLOR=BLUE>+</FONT></TT>  &nbsp;  <B><I>ies</I></B><TT><FONT COLOR=BLUE>*</FONT></TT>
+        <DD>replace by <B><I>i</I></B> if preceded by more than one letter, otherwise by <B><I>ie</I></B>
+        (so <I>ties</I> <TT>-&gt;</TT> <I>tie</I>, <I>cries</I> <TT>-&gt;</TT> <I>cri</I>)
+<BR><BR>
+    <DT><B><I>s</I></B>
+        <DD>delete if the preceding word part contains a vowel not immediately before the
+<B><I>s</I></B> (so <I>gas</I> and <I>this</I> retain the <B><I>s</I></B>, <I>gaps</I> and <I>kiwis</I> lose it)
+<BR><BR>
+    <DT><B><I>us</I></B><TT><FONT COLOR=BLUE>+</FONT></TT>  &nbsp;  <B><I>ss</I></B>
+        <DD>do nothing
+</DL>
+</DL>
+
+Step 1<I>b</I>:
+<DL><DD>
+    Search for the longest among the following suffixes, and perform the
+    action indicated.
+
+<BR><BR><DL>
+    <DT><B><I>eed  &nbsp;  eedly</I></B><TT><FONT COLOR=BLUE>+</FONT></TT>
+        <DD>replace by <B><I>ee</I></B> if in <I>R</I>1
+<BR><BR>
+    <DT><B><I>ed  &nbsp;  edly</I></B><TT><FONT COLOR=BLUE>+</FONT></TT>  &nbsp;  <B><I>ing  &nbsp;  ingly</I></B><TT><FONT COLOR=BLUE>+</FONT></TT>
+        <DD>delete if the preceding word part contains a vowel, and after the deletion:
+        <DD>if the word ends <B><I>at</I></B>, <B><I>bl</I></B> or <B><I>iz</I></B> add <B><I>e</I></B> (so <I>luxuriat</I> <TT>-&gt;</TT> <I>luxuriate</I>), or
+        <DD>if the word ends with a double
+        remove the last letter (so <I>hopp</I> <TT>-&gt;</TT> <I>hop</I>), or
+        <DD>if the word is short, add <B><I>e</I></B> (so <I>hop</I> <TT>-&gt;</TT> <I>hope</I>)
+</DL>
+</DL>
+
+Step 1<I>c</I>: <TT><FONT COLOR=BLUE>*</FONT></TT>
+<DL><DD>
+    replace suffix <B><I>y</I></B> or <B><I>Y</I></B> by <B><I>i</I></B> if preceded by a non-vowel which is not the
+    first letter of the word (so <I>cry</I> <TT>-&gt;</TT> <I>cri</I>, <I>by</I> <TT>-&gt;</TT> <I>by</I>, <I>say</I> <TT>-&gt;</TT> <I>say</I>)
+</DL>
+
+Step 2:
+<DL><DD>
+    Search for the longest among the following suffixes, and, if
+    found and in <I>R</I>1, perform the action indicated.
+
+<BR><BR><DL>
+    <DT><B><I>tional</I></B>:  &nbsp;  replace by <B><I>tion</I></B>
+    <DT><B><I>enci</I></B>:  &nbsp;  replace by <B><I>ence</I></B>
+    <DT><B><I>anci</I></B>:  &nbsp;  replace by <B><I>ance</I></B>
+    <DT><B><I>abli</I></B>:  &nbsp;  replace by <B><I>able</I></B>
+    <DT><B><I>entli</I></B>:  &nbsp;  replace by <B><I>ent</I></B>
+    <DT><B><I>izer  &nbsp;  ization</I></B>:  &nbsp;  replace by <B><I>ize</I></B>
+    <DT><B><I>ational  &nbsp;  ation  &nbsp;  ator</I></B>:  &nbsp;  replace by <B><I>ate</I></B>
+    <DT><B><I>alism  &nbsp;  aliti  &nbsp;  alli</I></B>:  &nbsp;  replace by <B><I>al</I></B>
+    <DT><B><I>fulness</I></B>:  &nbsp;  replace by <B><I>ful</I></B>
+    <DT><B><I>ousli &nbsp;  ousness</I></B>:  &nbsp;  replace by <B><I>ous</I></B>
+    <DT><B><I>iveness &nbsp;  iviti</I></B>:  &nbsp;  replace by <B><I>ive</I></B>
+    <DT><B><I>biliti  &nbsp;  bli</I></B><TT><FONT COLOR=BLUE>+</FONT></TT>:  &nbsp;  replace by <B><I>ble</I></B>
+    <DT><B><I>ogi</I></B><TT><FONT COLOR=BLUE>+</FONT></TT>:  &nbsp;  replace by <B><I>og</I></B> if preceded by <B><I>l</I></B>
+    <DT><B><I>fulli</I></B><TT><FONT COLOR=BLUE>+</FONT></TT>:  &nbsp;  replace by <B><I>ful</I></B>
+    <DT><B><I>lessli</I></B><TT><FONT COLOR=BLUE>+</FONT></TT>:  &nbsp;  replace by <B><I>less</I></B>
+    <DT><B><I>li</I></B><TT><FONT COLOR=BLUE>+</FONT></TT>:  &nbsp;  delete if preceded by a valid <B><I>li</I></B>-ending
+</DL>
+</DL>
+
+Step 3:
+<DL><DD>
+    Search for the longest among the following suffixes, and, if
+    found and in <I>R</I>1, perform the action indicated.
+
+<BR><BR><DL>
+    <DT><B><I>tional</I></B><TT><FONT COLOR=BLUE>+</FONT></TT>:  &nbsp;  replace by <B><I>tion</I></B>
+    <DT><B><I>ational</I></B><TT><FONT COLOR=BLUE>+</FONT></TT>:  &nbsp;  replace by <B><I>ate</I></B>
+    <DT><B><I>alize</I></B>:  &nbsp;  replace by <B><I>al</I></B>
+    <DT><B><I>icate  &nbsp;  iciti  &nbsp;  ical</I></B>:  &nbsp;  replace by <B><I>ic</I></B>
+    <DT><B><I>ful  &nbsp;  ness</I></B>:  &nbsp;  delete
+    <DT><B><I>ative</I></B><TT><FONT COLOR=BLUE>*</FONT></TT>:  &nbsp;  delete if in <I>R</I>2
+</DL>
+</DL>
+
+Step 4:
+<DL><DD>
+    Search for the longest among the following suffixes, and, if
+    found and in <I>R</I>2, perform the action indicated.
+
+<BR><BR><DL>
+    <DT><B><I>al  &nbsp;  ance  &nbsp;  ence  &nbsp;  er  &nbsp;  ic  &nbsp;  able  &nbsp;  ible  &nbsp;  ant  &nbsp;  ement  &nbsp;
+            ment  &nbsp;  ent  &nbsp;  ism  &nbsp;  ate  &nbsp;  iti  &nbsp;  ous  &nbsp;  ive  &nbsp;  ize</I></B>
+        <DD>delete
+    <DT><B><I>ion</I></B>
+        <DD>delete if preceded by <B><I>s</I></B> or <B><I>t</I></B>
+</DL>
+</DL>
+
+Step 5: <TT><FONT COLOR=BLUE>*</FONT></TT>
+<DL><DD>
+    Search for the the following suffixes, and, if
+    found, perform the action indicated.
+<BR><BR><DL>
+    <DT><B><I>e</I></B>
+    <DD>delete if in <I>R</I>2, or in <I>R</I>1 and not preceded by a short
+    syllable
+    <DT><B><I>l</I></B>
+    <DD>delete if in <I>R</I>2 and preceded by <B><I>l</I></B>
+</DL>
+</DL>
+Finally, turn any remaining <B><I>Y</I></B> letters in the word back into lower case.
+
+<BR>&nbsp;<H2>Exceptional forms in general</H2>
+
+It is quite easy to expand a Snowball script so that certain exceptional
+word forms get special treatment. The standard case is that certain words
+<TT>W<SUB>1</SUB></TT>, &nbsp;<TT>W<SUB>2</SUB></TT>&nbsp; ..., instead of passing through the stemming process, are
+mapped to the forms &nbsp;<TT>X<SUB>1</SUB></TT>, &nbsp;<TT>X<SUB>2</SUB></TT>&nbsp; ... respectively. If the script does
+the stemming by means of the call
+<BR><PRE>
+    define stem as C
+</PRE>
+where &nbsp;<TT>C</TT>&nbsp; is a command, the exceptional cases can be dealt with by extending this to
+<BR><PRE>
+    define stem as ( exception or C )
+</PRE>
+and putting in a routine &nbsp;<TT>exception</TT>:
+<BR><PRE>
+    define exception as (
+        [substring] atlimit among(
+            'W<SUB>1</SUB>'  ( <- 'X<SUB>1</SUB>' )
+            'W<SUB>2</SUB>'  ( <- 'X<SUB>2</SUB>' )
+            ...
+        )
+    )
+</PRE>
+<TT>atlimit</TT>&nbsp; causes the whole string to be tested for equality with one of
+the &nbsp;<TT>W<SUB>i</SUB></TT>, and if a match is found, the string is replaced with
+<TT>X<SUB>i</SUB></TT>.
+<BR><BR>
+More precisely we might have a group of words &nbsp;<TT>W<SUB>11</SUB></TT>, &nbsp;<TT>W<SUB>12</SUB></TT>&nbsp; ...
+that need to be mapped to &nbsp;<TT>X<SUB>1</SUB></TT>, another group &nbsp;<TT>W<SUB>21</SUB></TT>, &nbsp;<TT>W<SUB>22</SUB></TT>
+... that need to be mapped to &nbsp;<TT>X<SUB>2</SUB></TT>, and so on, and a list of words
+<TT>V<SUB>1</SUB></TT>, &nbsp;<TT>V<SUB>2</SUB></TT>&nbsp; ... &nbsp;<TT>V<SUB>k</SUB></TT>&nbsp; that are to remain invariant. The
+<TT>exception</TT>&nbsp; routine may then be written as follows:
+
+<BR><PRE>
+    among( 'W<SUB>11</SUB>' 'W<SUB>12</SUB>' ... (<- 'X<SUB>1</SUB>')
+           'W<SUB>21</SUB>' 'W<SUB>22</SUB>' ... (<- 'X<SUB>2</SUB>')
+           ...
+           'W<SUB>n1</SUB>' 'W<SUB>n2</SUB>' ... (<- 'X<SUB>n</SUB>')
+           'V<SUB>1</SUB>' 'V<SUB>2</SUB>' ... 'V<SUB>k</SUB>'
+         )
+</PRE>
+And indeed the &nbsp;<TT>exception1</TT>&nbsp; routine for the English stemmer has just that
+shape:
+<BR><PRE>
+    define exception1 as (
+
+         [substring] atlimit among(
+
+            /* special changes: */
+
+            'skis'      (<-'ski')
+            'skies'     (<-'sky')
+            'dying'     (<-'die')
+            'lying'     (<-'lie')
+            'tying'     (<-'tie')
+
+            /* special -LY cases */
+
+            'idly'      (<-'idl')
+            'gently'    (<-'gentl')
+            'ugly'      (<-'ugli')
+            'early'     (<-'earli')
+            'only'      (<-'onli')
+            'singly'    (<-'singl')
+
+            // ... extensions possible here ...
+
+            /* invariant forms: */
+
+            'sky'
+            'news'
+            'howe'
+
+            'atlas' 'cosmos' 'bias' 'andes' // not plural forms
+
+            // ... extensions possible here ...
+        )
+    )
+</PRE>
+(More will be said about the words that appear here shortly.)
+<BR><BR>
+Here we see words being treated exceptionally before stemming is done, but equally we could
+treat stems exceptionally after stemming is done, and so, if we wish, map <I>absorpt</I> to
+<I>absorb</I>, <I>reduct</I> to <I>reduc</I> etc., as in the
+<A HREF="../lovins/stemmer.html">Lovins stemmer</A>.
+But more generally, throughout the algorithm, each significant step may have recognised
+exceptions, and a suitably placed &nbsp;<TT>among</TT>&nbsp; will take care of them. For example, a point made
+at least twice in the literature is that words beginning <B><I>gener</I></B> are overstemmed by the
+Porter stemmer:
+<DL><DD><TABLE CELLPADDING=0>
+    <TR><TD> <I>generate<BR>
+         generates<BR>
+         generated<BR>
+         generating<BR>
+         general<BR>
+         generally<BR>
+         generic<BR>
+         generically<BR>
+         generous<BR>
+         generously</I> <TD></TD><TD>  &nbsp;  <TT>-&gt;</TT>  &nbsp;  <TD></TD><TD> <I>gener</I>
+
+</TABLE></DL>
+To fix this over-stemming, we make an exception to the usual setting of <I>p</I>1,
+the left point of <I>R</I>1, and therefore replace
+<BR><PRE>
+    gopast v  gopast non-v  setmark p1
+</PRE>
+with
+<BR><PRE>
+    among (
+        'gener'
+        // ... and other stems may be included here ...
+    ) or (gopast v  gopast non-v)
+    setmark p1
+</PRE>
+after which the words beginning <B><I>gener</I></B> stem as follows:
+<DL><DD><TABLE CELLPADDING=0>
+    <TR><TD> <I>generate<BR>
+         generates<BR>
+         generated<BR>
+         generating</I>
+                      <TD></TD><TD>  &nbsp;  <TT>-&gt;</TT>  &nbsp;  <TD></TD><TD> <I>generat</I>
+
+    <TR><TD> <I>general<BR>
+         generally</I>
+                      <TD></TD><TD>  &nbsp;  <TT>-&gt;</TT>  &nbsp;  <TD></TD><TD> <I>general</I>
+    <TR><TD> <I>generic<BR>
+         generically</I>
+                      <TD></TD><TD>  &nbsp;  <TT>-&gt;</TT>  &nbsp;  <TD></TD><TD> <I>generic</I>
+    <TR><TD> <I>generous<BR>
+         generously</I>
+                      <TD></TD><TD>  &nbsp;  <TT>-&gt;</TT>  &nbsp;  <TD></TD><TD> <I>generous</I>
+</TABLE></DL>
+Another example is given by the &nbsp;<TT>exception2</TT>&nbsp; routine, which is similar to &nbsp;<TT>exception1</TT>,
+but placed after the call of &nbsp;<TT>Step_1a</TT>, which may have removed terminal <B><I>s</I></B>,
+<BR><PRE>
+    define exception2 as (
+
+        [substring] atlimit among(
+            'inning' 'outing' 'canning' 'herring'
+            'proceed' 'exceed' 'succeed'
+
+            // ... extensions possible here ...
+
+        )
+    )
+
+</PRE>
+
+Snowball makes it easy therefore to add in lists of exceptions. But deciding what the lists of
+exceptions should be is far from easy. Essentially there are two lines of attack, the
+systematic and the piecemeal. One might systematically treat as exceptions the stem changes of
+irregular verbs, for example. The piecemeal approach is to add in exceptions as people notice
+them &#x2014; like <B><I>gener</I></B> above. The problem with the systematic approach is that it should be
+done by investigating the entire language vocabulary, and that is more than most people are
+prepared to do. The problem with the piecemeal approach is that it is arbitrary, and usually
+yields little.
+<BR><BR>
+The exception lists in the English stemmer are meant to be illustrative (&#8216;this is how it is done if you
+want to do it&#8217;), and were derived piecemeal.
+<BR><BR>
+<I>a</I>)
+The new stemmer improves on the Porter stemmer in handling short words ending <B><I>e</I></B> and
+<B><I>y</I></B>. There is however a mishandling of the four forms <I>sky</I>, <I>skies</I>, <I>ski</I>,
+<I>skis</I>, which is easily corrected by treating three of these words as
+special cases.
+<BR><BR>
+<I>b</I>)
+Similarly there is a problem with the <B><I>ing</I></B> form of three letter verbs ending <B><I>ie</I></B>. There
+are only three such verbs: <I>die</I>, <I>lie</I> and <I>tie</I>, so a special case is made for
+<I>dying</I>, <I>lying</I> and <I>tying</I>.
+<BR><BR>
+<I>c</I>)
+One has to be a little careful of certain <B><I>ing</I></B> forms.
+<I>inning</I>, <I>outing</I>, <I>canning</I>, which one does not wish
+to be stemmed to
+<I>in</I>, <I>out</I>, <I>can</I>.
+<BR><BR>
+<I>d</I>)
+The removal of suffix <B><I>ly</I></B>, which is not in the Porter stemmer, has a number of exceptions.
+Certain short-word exceptions are <I>idly</I>, <I>gently</I>, <I>ugly</I>, <I>early</I>, <I>only</I>, <I>singly</I>.
+Rarer words (<I>bristly</I>, <I>burly</I>, <I>curly</I>, <I>surly</I> ...) are not included.
+<BR><BR>
+<I>e</I>)
+The remaining words were included following complaints from users of the Porter algorithm.
+<I>news</I> is not the plural of <I>new</I> (noticed when IR systems were being set up for
+Reuters). <I>Howe</I> is a surname, and needs to be separated from <I>how</I> (noticed when
+doing a search for &#8216;Sir Geoffrey Howe&#8217; in a demonstration at the House of Commons).
+<I>succeed</I> etc are not past participles, so the <B><I>ed</I></B> should not be removed (pointed out
+to me in an email from India). <I>herring</I> should not stem to <I>her</I> (another email from
+Russia).
+<BR><BR>
+<I>f</I>)
+Finally, a few non-plural words ending <B><I>s</I></B> have been added.
+<BR><BR>
+Incidentally, this illustrates how much feedback to expect from the real users of a stemming
+algorithm: seven or eight words in twenty years!
+<BR><BR>
+The definition of the English stemmer above is therefore supplemented by the following:
+<BR><BR>
+<BR>&nbsp;<H2>Exceptional forms in the English stemmer</H2>
+
+
+<DL><DD>
+    If the words begins <B><I>gener</I></B>, <B><I>commun</I></B> or <B><I>arsen</I></B>, set <I>R</I>1 to be the remainder of the
+    word.
+<BR><BR>
+    Stem certain special words as follows,
+<BR><BR>
+<DL><DD><TABLE CELLPADDING=0>
+<TR><TD> <I>skis</I>      <TD></TD><TD>   &nbsp;  <TT>-&gt;</TT>  &nbsp;  <TD></TD><TD> <I>ski</I>
+<TR><TD> <I>skies</I>     <TD></TD><TD>   &nbsp;  <TT>-&gt;</TT>  &nbsp;  <TD></TD><TD> <I>sky</I>
+
+<TR><TD> <I>dying <BR> lying <BR> tying</I>
+                 <TD></TD><TD>  <TT>-&gt;</TT>
+                               <TD></TD><TD> <I>die <BR> lie <BR> tie</I>
+
+
+<TR><TD> <I>idly <BR> gently <BR> ugly <BR> early <BR> only <BR> singly</I>
+                 <TD></TD><TD>  <TT>-&gt;</TT>
+                               <TD></TD><TD> <I>idl <BR> gentl <BR> ugli <BR> earli <BR> onli <BR> singl</I>
+
+</TABLE></DL>
+<BR><BR>
+    If one of the following is found, leave it invariant,
+<BR><BR>
+<DL><DD><TABLE CELLPADDING=0>
+<TR><TD>        <I>sky <BR> news <BR> howe</I>
+<TR><TD>        <I>atlas</I>  &nbsp; <TD></TD><TD> &nbsp;  <I>cosmos</I>  &nbsp; <TD></TD><TD> &nbsp;  <I>bias</I>  &nbsp; <TD></TD><TD> &nbsp;  <I>andes</I>
+</TABLE></DL>
+<BR><BR>
+    Following step 1<I>a</I>, leave the following invariant,
+<BR><BR>
+<DL><DD><TABLE CELLPADDING=0>
+<TR><TD>        <I>inning</I>  &nbsp; <TD></TD><TD> &nbsp;  <I>outing</I>  &nbsp; <TD></TD><TD> &nbsp;  <I>canning</I>  &nbsp; <TD></TD><TD> &nbsp;  <I>herring</I>  &nbsp; <TD></TD><TD> &nbsp;  <I>earring</I>
+<TR><TD>        <I>proceed</I>  &nbsp; <TD></TD><TD> &nbsp;  <I>exceed</I>  &nbsp; <TD></TD><TD> &nbsp;  <I>succeed</I>
+</TABLE></DL>
+</DL>
+<BR><BR>
+
+
+
+
+</TR>
+
+<TR><TD BGCOLOR="lightblue">
+<BR>&nbsp;<H2>The full algorithm in Snowball</H2>
+
+<BR><PRE>
+<DL><DD>
+integers ( p1 p2 )
+booleans ( Y_found )
+
+routines (
+    prelude postlude
+    mark_regions
+    shortv
+    R1 R2
+    Step_1a Step_1b Step_1c Step_2 Step_3 Step_4 Step_5
+    exception1
+    exception2
+)
+
+externals ( stem )
+
+groupings ( v v_WXY valid_LI )
+
+stringescapes {}
+
+define v        'aeiouy'
+define v_WXY    v + 'wxY'
+
+define valid_LI 'cdeghkmnrt'
+
+define prelude as (
+    unset Y_found
+    do ( ['{'}'] delete)
+    do ( ['y'] <-'Y' set Y_found)
+    do repeat(goto (v ['y']) <-'Y' set Y_found)
+)
+
+define mark_regions as (
+    $p1 = limit
+    $p2 = limit
+    do(
+        among (
+            'gener'
+            'commun'  //  added May 2005
+            'arsen'   //  added Nov 2006 (arsenic/arsenal)
+            // ... extensions possible here ...
+        ) or (gopast v  gopast non-v)
+        setmark p1
+        gopast v  gopast non-v  setmark p2
+    )
+)
+
+backwardmode (
+
+    define shortv as (
+        ( non-v_WXY v non-v )
+        or
+        ( non-v v atlimit )
+    )
+
+    define R1 as $p1 <= cursor
+    define R2 as $p2 <= cursor
+
+    define Step_1a as (
+        try (
+            [substring] among (
+                '{'}' '{'}s' '{'}s{'}'
+                       (delete)
+            )
+        )
+        [substring] among (
+            'sses' (<-'ss')
+            'ied' 'ies'
+                   ((hop 2 <-'i') or <-'ie')
+            's'    (next gopast v delete)
+            'us' 'ss'
+        )
+    )
+
+    define Step_1b as (
+        [substring] among (
+            'eed' 'eedly'
+                (R1 <-'ee')
+            'ed' 'edly' 'ing' 'ingly'
+                (
+                test gopast v  delete
+                test substring among(
+                    'at' 'bl' 'iz'
+                         (<+ 'e')
+                    'bb' 'dd' 'ff' 'gg' 'mm' 'nn' 'pp' 'rr' 'tt'
+                    // ignoring double c, h, j, k, q, v, w, and x
+                         ([next]  delete)
+                    ''   (atmark p1  test shortv  <+ 'e')
+                )
+            )
+        )
+    )
+
+    define Step_1c as (
+        ['y' or 'Y']
+        non-v not atlimit
+        <-'i'
+    )
+
+    define Step_2 as (
+        [substring] R1 among (
+            'tional'  (<-'tion')
+            'enci'    (<-'ence')
+            'anci'    (<-'ance')
+            'abli'    (<-'able')
+            'entli'   (<-'ent')
+            'izer' 'ization'
+                      (<-'ize')
+            'ational' 'ation' 'ator'
+                      (<-'ate')
+            'alism' 'aliti' 'alli'
+                      (<-'al')
+            'fulness' (<-'ful')
+            'ousli' 'ousness'
+                      (<-'ous')
+            'iveness' 'iviti'
+                      (<-'ive')
+            'biliti' 'bli'
+                      (<-'ble')
+            'ogi'     ('l' <-'og')
+            'fulli'   (<-'ful')
+            'lessli'  (<-'less')
+            'li'      (valid_LI delete)
+        )
+    )
+
+    define Step_3 as (
+        [substring] R1 among (
+            'tional'  (<- 'tion')
+            'ational' (<- 'ate')
+            'alize'   (<-'al')
+            'icate' 'iciti' 'ical'
+                      (<-'ic')
+            'ful' 'ness'
+                      (delete)
+            'ative'
+                      (R2 delete)  // 'R2' added Dec 2001
+        )
+    )
+
+    define Step_4 as (
+        [substring] R2 among (
+            'al' 'ance' 'ence' 'er' 'ic' 'able' 'ible' 'ant' 'ement'
+            'ment' 'ent' 'ism' 'ate' 'iti' 'ous' 'ive' 'ize'
+                      (delete)
+            'ion'     ('s' or 't' delete)
+        )
+    )
+
+    define Step_5 as (
+        [substring] among (
+            'e' (R2 or (R1 not shortv) delete)
+            'l' (R2 'l' delete)
+        )
+    )
+
+    define exception2 as (
+
+        [substring] atlimit among(
+            'inning' 'outing' 'canning' 'herring' 'earring'
+            'proceed' 'exceed' 'succeed'
+
+            // ... extensions possible here ...
+
+        )
+    )
+)
+
+define exception1 as (
+
+    [substring] atlimit among(
+
+        /* special changes: */
+
+        'skis'      (<-'ski')
+        'skies'     (<-'sky')
+        'dying'     (<-'die')
+        'lying'     (<-'lie')
+        'tying'     (<-'tie')
+
+        /* special -LY cases */
+
+        'idly'      (<-'idl')
+        'gently'    (<-'gentl')
+        'ugly'      (<-'ugli')
+        'early'     (<-'earli')
+        'only'      (<-'onli')
+        'singly'    (<-'singl')
+
+        // ... extensions possible here ...
+
+        /* invariant forms: */
+
+        'sky'
+        'news'
+        'howe'
+
+        'atlas' 'cosmos' 'bias' 'andes' // not plural forms
+
+        // ... extensions possible here ...
+    )
+)
+
+define postlude as (Y_found  repeat(goto (['Y']) <-'y'))
+
+define stem as (
+
+    exception1 or
+    not hop 3 or (
+        do prelude
+        do mark_regions
+        backwards (
+
+            do Step_1a
+
+            exception2 or (
+
+                do Step_1b
+                do Step_1c
+
+                do Step_2
+                do Step_3
+                do Step_4
+
+                do Step_5
+            )
+        )
+        do postlude
+    )
+)
+</DL>
+</PRE>
+</TR>
+</TABLE>
+</BODY>
+</HTML>

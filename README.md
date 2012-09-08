@@ -1,4 +1,4 @@
-The official javascript implementation of the Porter Stemmer
+The official javascript implementation of the Porter Stemmer.
 
 # About
 
@@ -6,6 +6,8 @@ There are two reference implementation here, corresponding to two different stem
 the [original Porter Stemmer from 1980](http://tartarus.org/martin/PorterStemmer/def.txt), covered by PorterStemmer1980.js, 
 and the second corresponding to the [Porter2 stemming algorithm](http://snowball.tartarus.org/algorithms/english/stemmer.html), 
 (rev. July 2005) covered by PorterStemmer2.js.
+
+These files have also been included in the spec directory for referencing.
 
 # Usage
 
@@ -24,5 +26,8 @@ for completion by September 15th, 2012.
 
 # Demo
 
-There is a demo available at [demo](http://qaa.ath.cx/porter_js_demo.html)
+There is a demo available [here](http://qaa.ath.cx/porter_js_demo.html)
 
+# Mailing List
+
+Available over [here](https://groups.google.com/forum/#!forum/js-porter-stemmer).
