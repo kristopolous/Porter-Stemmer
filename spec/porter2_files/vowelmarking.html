@@ -1,0 +1,75 @@
+
+<HTML>
+<HEAD>
+<TITLE>Marking vowels as consonants</TITLE></HEAD>
+<BODY BGCOLOR=WHITE>
+<TABLE WIDTH=75% ALIGN=CENTER COLS=1>
+
+<TR><TD>
+
+<BR><BR>
+
+
+<BR>&nbsp;<H2>Marking vowels as consonants</H2>
+
+Some of the algorithms begin with a step which puts letters which are
+normally classed as vowels into upper case to indicate that they are are to be
+treated as consonants (the assumption being that the words are presented to
+the stemmers in lower case). Upper case therefore acts as a flag indicating a
+consonant.
+<BR><BR>
+For example, the English stemmer begins with the step
+<DL><DD>
+    Set initial <B><I>y</I></B>, or <B><I>y</I></B> after a vowel, to <B><I>Y</I></B>,
+</DL>
+giving rise to the following changes,
+
+<DL><DD><TABLE CELLPADDING=0>
+<TR><TD> <I>youth</I>      <TD></TD><TD>   &nbsp;  <TT>-&gt;</TT>  &nbsp;  <TD></TD><TD> <I>Youth</I>
+<TR><TD> <I>boy</I>        <TD></TD><TD>   &nbsp;  <TT>-&gt;</TT>  &nbsp;  <TD></TD><TD> <I>boY</I>
+<TR><TD> <I>boyish</I>     <TD></TD><TD>   &nbsp;  <TT>-&gt;</TT>  &nbsp;  <TD></TD><TD> <I>boYish</I>
+<TR><TD> <I>fly</I>        <TD></TD><TD>   &nbsp;  <TT>-&gt;</TT>  &nbsp;  <TD></TD><TD> <I>fly</I>
+<TR><TD> <I>flying</I>     <TD></TD><TD>   &nbsp;  <TT>-&gt;</TT>  &nbsp;  <TD></TD><TD> <I>flying</I>
+<TR><TD> <I>syzygy</I>     <TD></TD><TD>   &nbsp;  <TT>-&gt;</TT>  &nbsp;  <TD></TD><TD> <I>syzygy</I>
+</TABLE></DL>
+
+This process works from left to right, and
+if a word contains <B><I>Vyy</I></B>, where <B><I>V</I></B> is a vowel, the first <B><I>y</I></B> is put
+into upper case, but the second <B><I>y</I></B> is left alone, since it is preceded by
+upper case <B><I>Y</I></B> which is a consonant. A sequence <B><I>Vyyyyy...</I></B> would be
+changed to <B><I>VYyYyY...</I></B>.
+<BR><BR>
+The combination <B><I>yy</I></B> never occurs in English, although it might appear in
+foreign words:
+
+<DL><DD><TABLE CELLPADDING=0>
+<TR><TD> <I>sayyid</I>      <TD></TD><TD>   &nbsp;  <TT>-&gt;</TT>  &nbsp;  <TD></TD><TD> <I>sayYid</I>
+</TABLE></DL>
+
+(A <I>sayyid</I>, my dictionary tells me, is a descendant of Mohammed's daughter
+Fatima.) But the left-to-right process is significant in other languages, for
+example French. In French the rule for marking vowels as consonants is,
+<DL><DD>
+    Put into upper case <B><I>u</I></B> or <B><I>i</I></B> preceded and followed by a vowel, and
+    <B><I>y</I></B> preceded or followed by a vowel. Put <B><I>u</I></B> after <B><I>q</I></B> into upper
+    case.
+</DL>
+
+which gives rise to,
+<DL><DD><TABLE CELLPADDING=0>
+<TR><TD> <I>ennuie</I>       <TD></TD><TD>   &nbsp;  <TT>-&gt;</TT>  &nbsp;  <TD></TD><TD> <I>ennuIe</I>
+<TR><TD> <I>inqui&eacute;tude</I> <TD></TD><TD>   &nbsp;  <TT>-&gt;</TT>  &nbsp;  <TD></TD><TD> <I>inqUi&eacute;tude</I>
+</TABLE></DL>
+
+In the first word, <B><I>i</I></B> is put into upper case since it has a vowel on both
+sides of it.
+In the second word, <B><I>u</I></B> after <B><I>q</I></B> is put into upper case, and again the
+following <B><I>i</I></B> is left alone, since it is preceded by upper case <B><I>U</I></B> which
+is a consonant.
+
+
+</TR>
+
+</TABLE>
+</BODY>
+</HTML>

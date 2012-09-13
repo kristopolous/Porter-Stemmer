@@ -1,0 +1,88 @@
+
+<HTML>
+<HEAD>
+<TITLE>The apostrophe character</TITLE></HEAD>
+<BODY BGCOLOR=WHITE>
+<TABLE WIDTH=75% ALIGN=CENTER COLS=1>
+
+<TR><TD>
+
+<BR><BR>
+
+
+<BR>&nbsp;<H2>The apostrophe character</H2>
+
+Representing apostrophe is problematical for various reasons,
+
+<BR><BR>
+a) There are two Unicode characters for apostrophe, U+0027 (also ASCII hex
+27), and U+2019. Compare,
+<BR><PRE>
+        Hamlet's father's ghost (U+0027)
+        Hamlet&#8217;s father&#8217;s ghost (U+2019)
+</PRE>
+
+b) Although conceptually different from an apostrophe, a single closing
+quote is also represented by character U+2019.
+<BR><BR>
+
+c) Character U+0027 is used for apostrophe, single closing quote and
+single opening quote (U+2018).
+<BR><BR>
+
+d) A fourth character, U+201B, like U+2018 but with the tail &#8216;rising&#8217;
+instead of &#8216;descending&#8217;, is also sometimes used as apostrophe (in the
+house style of certain publishers, for surnames like <I>M&#8217;Coy</I> and so on.)
+
+<BR><BR>
+
+In the English stemming algorithm, it is assumed that apostrophe is
+represented by U+0027. This makes it ASCII compatible. Clearly other codes
+for apostrophe can be mapped to this code prior to stemming.
+
+<BR><BR>
+
+In English orthography, apostrophe has one of three functions.
+<BR><BR>
+
+1) It indicates a contraction in what is now accepted as a single word:
+<I>o&#8217;clock</I>, <I>O&#8217;Reilly</I>, <I>M&#8217;Coy</I>. Except in proper names such forms
+are rare: the apostrophe in <I>Hallowe&#8217;en</I> is disappearing, and in
+<I>&#8217;bus</I> has disappeared.
+
+<BR><BR>
+
+2) It indicates a standard contraction with auxiliary or modal verbs:
+<I>you&#8217;re</I>, <I>isn&#8217;t</I>, <I>we&#8217;d</I>. There are about forty of these forms in
+contemporary English, and their use is increasing as they displace the full
+forms that were at one time used in formal documents. Although they can be
+reduced to word pairs, it is more convenient to treat them as single items
+(usually stopwords) in IR work. And then preserving the apostrophe is
+important, so that <I>he&#8217;ll</I>, <I>she&#8217;ll</I>, <I>we&#8217;ll</I> are not equated with
+<I>hell</I>, <I>shell</I>, <I>well</I> etc.
+
+<BR><BR>
+
+3) It is used to form the &#8216;English genitive&#8217;, <I>John's book</I>, <I>the horses&#8217;
+hooves</I> etc. This is a development of (1), where historically the apostrophe
+stood for an elided <B><I>e</I></B>. (Similarly the printed form <B><I>&#8217;d</I></B> for <B><I>ed</I></B> was
+very common before the nineteenth century.) Although in decline (witness <I>pigs
+trotters</I>, <I>Girls School Trust</I>), its use continues in contemporary
+English, where it is fiercely promoted as correct grammar, despite (or it might
+be closer to the truth to say <I>because of</I>) its complete semantic redundancy.
+
+<BR><BR>
+
+For these reasons, the English stemmer treats apostrophe as a letter, removing
+it from the beginning of a word, where it might have stood for an opening
+quote, from the end of the word, where it might have stood for a closing quote,
+or been an apostrophe following <B><I>s</I></B>. The form <B><I>&#8217;s</I></B> is also treated as an ending.
+
+
+<BR><BR>
+
+</TR>
+
+</TABLE>
+</BODY>
+</HTML>

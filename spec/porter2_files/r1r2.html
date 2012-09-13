@@ -1,0 +1,75 @@
+
+<HTML>
+<HEAD>
+<TITLE>Defining R1 and R2</TITLE></HEAD>
+<BODY BGCOLOR=WHITE>
+<TABLE WIDTH=75% ALIGN=CENTER COLS=1>
+
+<TR><TD>
+
+<BR><BR>
+
+
+<BR>&nbsp;<H2>Defining <I>R</I>1 and <I>R</I>2</H2>
+
+Most of the stemmers make use of at least one of the region definitions <I>R</I>1 and
+<I>R</I>2. They are defined as follows:
+
+<BR><BR>
+<I>R</I>1 is the region after the first non-vowel following a vowel, or is the null
+region at the end of the word if there is no such non-vowel.
+<BR><BR>
+<I>R</I>2 is the region after the first non-vowel following a vowel in <I>R</I>1, or is
+the null region at the end of the word if there is no such non-vowel.
+<BR><BR>
+
+The definition of <I>vowel</I> varies from language to language. In French, for
+example, <B><I>&eacute;</I></B> is a vowel, and in Italian <B><I>i</I></B> between two other vowels is not a
+vowel. The class of letters that constitute vowels is made clear in each stemmer.
+<BR><BR>
+Below, <I>R</I>1 and <I>R</I>2 are shown for a number of English words,
+<BR><PRE>
+    b   e   a   u   t   i   f   u   l
+                      |<------------->|    R1
+                              |<----->|    R2
+</PRE>
+Letter <B><I>t</I></B> is the first non-vowel following a vowel in <I>beautiful</I>, so <I>R</I>1
+is <B><I>iful</I></B>. In <B><I>iful</I></B>, the letter <B><I>f</I></B> is the first non-vowel following a
+vowel, so <I>R</I>2 is <B><I>ul</I></B>.
+
+<BR><PRE>
+    b   e   a   u   t   y
+                      |<->|    R1
+                        ->|<-  R2
+</PRE>
+In <I>beauty</I>, the last letter <B><I>y</I></B> is classed as a vowel. Again, letter <B><I>t</I></B> is
+the first non-vowel following a vowel, so <I>R</I>1 is just the last letter, <B><I>y</I></B>.
+<I>R</I>1 contains no non-vowel, so <I>R</I>2 is the null region at the end of the word.
+
+<BR><PRE>
+    b   e   a   u
+                ->|<-  R1
+                ->|<-  R2
+</PRE>
+In <I>beau</I>, <I>R</I>1 and <I>R</I>2 are both null.
+<BR><BR>
+Other examples:
+<BR><PRE>
+    a   n   i   m   a   d   v   e   r   s   i   o   n
+          |<----------------------------------------->|    R1
+                  |<--------------------------------->|    R2
+
+    s   p   r   i   n   k   l   e   d
+                      |<------------->|    R1
+                                    ->|<-  R2
+
+    e   u   c   h   a   r   i   s   t
+              |<--------------------->|    R1
+                          |<--------->|    R2
+</PRE>
+
+</TR>
+
+</TABLE>
+</BODY>
+</HTML>

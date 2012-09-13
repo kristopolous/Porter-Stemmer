@@ -1,6 +1,10 @@
 // Reference Javascript Porter Stemmer. This code corresponds to the original
 // 1980 paper available here: http://tartarus.org/martin/PorterStemmer/def.txt
+//
 // The latest version of this code is available at https://github.com/kristopolous/Porter-Stemmer
+// The specification from above can be found in the spec directory at that repository.
+//
+// The license for this work is covered in BSD-License.txt and is incorporated herein by reference.
 //
 // Original comment:
 // Porter stemmer in Javascript. Few comments, but it's easy to follow against the rules in the original
