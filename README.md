@@ -17,7 +17,7 @@ In both implementations, you can get a trace as to what is going on, correspondi
 provding a second argument of "true" and using one of the browser debug consoles.  
 
 For instance, `stemmer("hopefully", true)` will output `1c /^(.*[aeiouy].*)y$/ hopefulli`, telling us that rule 1c was matched
-by that regular expression and as a result, we got hopfulli.
+by that regular expression and as a result, we got hopefulli.
 
 # Status
 
