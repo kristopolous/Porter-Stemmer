@@ -9,32 +9,6 @@
 // Let's roll...
 //
 var stemmer = (function(){
-  // Because some patterns below are Arrays (not by necessity of
-  // technology but by necessity of clarity for you the reader), there is 
-  // a separate set of regexp operations here that support that syntax.
-  function Porter_RegExp(array) {
-    this.match_set = [];
-    for(var i = 0; i < array.length; i++) {
-      this.match_set.push(new RegExp(array[i]));
-    }
-  }
-
-  Porter_RegExp.prototype.test = function(toTest) {
-    for(var i = 0; i < this.match_set.length; i++) {
-      if(this.match_set[i].test(toTest)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  Porter_RegExp.create = function(string_or_array) {
-    if(typeof(string_or_array) == "string") {
-      return new RegExp(string_or_array);
-    } else {
-      return new Porter_RegExp(string_or_array);
-    }
-  }
 
   function dummyDebug() {}
 
@@ -79,7 +53,7 @@ var stemmer = (function(){
     // Implementors note: R2 is the regex of R1 applied to the match set of R1
     // (capture-subpattern) if R1 exists or is the empty string otherwise.
      
-    R1_and_R2 = Porter_RegExp.create(vowel + non_vowel + "(.*)$"),
+    R1_and_R2 = new RegExp(vowel + non_vowel + "(.*)$"),
     
     get_region = function(word) {
       var res = R1_and_R2.match(word);
@@ -143,6 +117,7 @@ var stemmer = (function(){
     // Remove initial ', if present.
     if (word.charAt(0) == "'") {
       word = word.slice(1);
+      debugFunction("Remove initial ', if present.", "", word);
     }
 
     // Set initial y, or y after a vowel, to Y
@@ -176,18 +151,54 @@ var stemmer = (function(){
     // and remove if found.
     //
 
-    R1 = longest_suffix(R1, [
-      [/'s'$/, ""],
-      [/'s$/, ""],
-      [/'$/, ""]
+    word = longest_suffix(word, [
+      [/'s'$/, "", 3],
+      [/'s$/, "", 2],
+      [/'$/, "", 1]
     ]);
 
-    R2 = longest_suffix(R2, [
-      [/'s'$/, ""],
-      [/'s$/, ""],
-      [/'$/, ""]
+    // Step 1a:
+    // Search for the longest among the following suffixes, and perform 
+    // the action indicated. 
+    word = longest_suffix(word, [
+      // sses, replace by ss 
+        [ /sses$/, "ss", 4],
+
+      // ied+   ies*
+      // replace by i if preceded by more than one letter, otherwise by 
+      // ie (so ties -> tie, cries -> cri) 
+        [ /^(.{2,})ie[sd]$/, "$1i", 3 ], 
+
+        [ /^(.{0,1})ie[sd]$/, "$1ie", 3 ], 
+
+      // us+   ss
+      // do nothing
+        [ /([us]s)$/, "$1", 2 ], 
+
+      // s
+      // delete if the preceding word part contains a vowel not immediately 
+      // before the s (so gas and this retain the s, gaps and kiwis lose it) 
+
+        // Implementors note: vowel + something else + s
+        [ /([aeiouy].+)s$/, "$1", 1 ]
     ]);
 
+    // Step 1b:
+    // Search for the longest among the following suffixes, and perform the action indicated. 
+    word = R1(word, longest_suffix
+    R1 = longest_suffix(
+    // eed   eedly+
+    // replace by ee if in R1 
+    //
+    // ed   edly+   ing   ingly+
+    // delete if the preceding word part contains a vowel, and after the deletion:
+    // if the word ends at, bl or iz add e (so luxuriat -> luxuriate), or
+    // if the word ends with a double remove the last letter (so hopp -> hop), or
+    // if the word is short, add e (so hop -> hope)
+
+    // Step 1c:
+    // replace suffix y or Y by i if preceded by a non-vowel which is not the first letter 
+    // of the word (so cry -> cri, by -> by, say -> say)
 
     // Step 2:
     // Search for the longest among the following suffixes, and, 
