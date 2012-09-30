@@ -22,7 +22,7 @@ by that regular expression and as a result, we got hopefulli.
 # Status
 
 As of Sept 6, 2012, PorterStemmer1980 is 100% compliant and PorterStemmer2 is 95.21%. 100% complaince of PorterStemmer2 is slated
-for completion by September 15th, 2012.
+for completion by October 7th, 2012.
 
 # Demo
 
