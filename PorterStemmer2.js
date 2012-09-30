@@ -53,7 +53,8 @@ var stemmer = (function(){
     // Implementors note: R2 is the regex of R1 applied to the match set of R1
     // (capture-subpattern) if R1 exists or is the empty string otherwise.
      
-    R1_and_R2 = new RegExp(vowel + non_vowel + "(.*)$"),
+    R1_exception = new RegExp("^(?=gener|commun|arsen)(.*)$", "g"),
+    R1_and_R2 = new RegExp(vowel + non_vowel + "(.*)$", "g"),
     
     get_region = function(word) {
       var res = R1_and_R2.match(word);
@@ -68,6 +69,85 @@ var stemmer = (function(){
       non_vowel + "([^aeiouywx][aeiouy])",        // (a)
       "^(" + vowel + non_vowel + ")"              // (b)
     ]);
+
+  // This is the definition of a Word as in the Porter2
+  // style of word.  There is a distinct R1 and R2 that
+  // is computed in real time as the steps of the
+  // algorithm are done
+  function Word(init) {
+    String.call(this, init);
+  }
+
+  Word.prototype.toString = function() {
+    return this.word;
+  }
+
+  Word.prototype.decompose = function() {
+    // If the words begins gener, commun or arsen, 
+    // set R1 to be the remainder of the word.
+    R1_exception.lastIndex = R1_and_R2.lastIndex = 0;
+    var match = R1_exception.exec(this.word) || R1_and_R2.exec(this.word);
+
+    this._R1 = match[1];
+    this._R1_index = this.word.length - this._R1.length;
+
+    R1_and_R2.lastIndex = 0;
+    match = R1_and_R2.exec(this._R1);
+    this._R2 = match[1];
+    this._R2_index = this.word.length - this._R2.length;
+
+    return this;
+  }
+
+  Word.prototype.recompose = function() {
+    return this.word = [
+      this.word.substr(0, this._R1_index),
+      this._R1.substr(0, this._R2_index - this._R1_index),
+      this._R2
+    ].join("");
+  }
+
+  Word.prototype.R1 = function() {
+    return this.decompose()._R1;
+  }
+
+  Word.prototype.R2 = function() {
+    return this.decompose()._R2;
+  }
+
+  Word.prototype.R1_match = function(regex) {
+    var ret = this.decompose()._R1.match(regex);
+
+    if(ret !== null) {
+      ret.index += this._R1_index;
+      ret.input = this.word;
+    }
+
+    return ret;
+  }
+
+  Word.prototype.R2_match = function(regex) {
+    var ret = this.decompose()._R2.match(regex);
+
+    if(ret !== null) {
+      ret.index += this._R2_index;
+      ret.input = this.word;
+    }
+
+    return ret;
+  }
+
+  Word.prototype.R1_replace = function(a, b) {
+    this._R1 = this.decompose()._R1.replace(a, b);
+    return this.recompose();
+  }
+
+  Word.prototype.R2_replace = function(a, b) {
+    this._R2 = this.decompose()._R2.replace(a, b);
+    return this.recompose();
+  }
+
+  // >> This marks the end of the Word definition.
 
   // A word is called short if it ends in a short syllable, and if R1 is null. 
   function is_short(word) {
@@ -99,10 +179,11 @@ var stemmer = (function(){
 
 
   // Implementors note: This is the start of the machinery
-  return function (word, debug) {
+  return function (raw_word, debug) {
 
     // If the word has two letters or less, leave it as it is. 
-    var two_letters_or_less = new RegExp("^" + letter + "{1,2}$");
+    var two_letters_or_less = new RegExp("^" + letter + "{1,2}$"),
+        word = Word(raw_word);
 
     if (two_letters_or_less.test(word)) {
       debugFunction(

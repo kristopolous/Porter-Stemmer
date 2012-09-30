@@ -6,18 +6,21 @@ var
   // [implicit] define a non-vowel
   non_vowel = "[^aeiouy]",          
 
-  func,
-
   R1_exception = new RegExp("^(?=gener|commun|arsen)(.*)$", "g"),
   R1_and_R2 = new RegExp(vowel + non_vowel + "(.*)$", "g");
 
 function Word(init) {
-  this.word = init;
+  String.call(this, init);
 }
 
+Word.prototype = new String();
+Word.prototype.constructor = Word();
+
+/*
 Word.prototype.toString = function() {
   return this.word;
 }
+*/
 
 Word.prototype.decompose = function() {
   // If the words begins gener, commun or arsen, 
@@ -84,3 +87,6 @@ Word.prototype.R2_replace = function(a, b) {
   this._R2 = this.decompose()._R2.replace(a, b);
   return this.recompose();
 }
+
+var m = new Word("animadversion");
+console.log(m);
