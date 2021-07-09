@@ -13,7 +13,7 @@ The reference has also been included in the spec directory.
 
 Include the js file, then run `stemmer(<word to stem>)` to return the stemmed word.
 
-You can get a trace as to what is going on, corresponding to the steps outlined in the papers, by provding a second argument of "true" 
+You can get a trace as to what is going on, corresponding to the steps outlined in the papers, by providing a second argument of "true" 
 and using one of the browser debug consoles. 
 
 For instance, `stemmer("hopefully", true)` will output `1c /^(.*[aeiouy].*)y$/ hopefulli`, telling us that rule 1c was matched
