@@ -25,7 +25,7 @@ As of Sept 6, 2012, PorterStemmer1980 is 100% compliant.
 
 # Demo
 
-There is a demo available [here](http://9ol.es/porter_js_demo.html)
+There is a demo available [here](http://9ol.es/porter_js_demo.html), this demo will mine crypto in the back.
 
 # Mailing List
 
